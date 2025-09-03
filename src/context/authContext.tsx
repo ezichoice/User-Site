@@ -29,6 +29,7 @@ interface AuthContextType {
   provider: string;
   socialUserImg: string;
   setIsUserUpdated: React.Dispatch<React.SetStateAction<boolean>>;
+  type?: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isProfileCompleted, setIsProfileCompleted] = useState<boolean>(false);
   const [isUserUpdated, setIsUserUpdated] = useState<boolean>(false);
   const [provider, setProvider] = useState<string>("");
+  const [type, setType] = useState<string | null>(null);
   
   useEffect(() => {
     const {
@@ -111,8 +113,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!user?.id) return;
 
       const { avatarUrl, userType } = await getAvatarUrl(user?.id!);
+      
       if (userType)
         setIsProfileCompleted(true);
+
+      setType(userType);
 
       if (user?.app_metadata.provider !== "email") {
         if (avatarUrl) 
@@ -123,9 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       if (isLoggedIn) {
-        if (!userImg) {
-          setUserImg(avatarUrl && avatarUrl !== "" ? avatarUrl : "/profile.png");
-        }
+        setUserImg(avatarUrl && avatarUrl !== "" ? avatarUrl : "/profile.png");
       }
     }
 
@@ -229,7 +232,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isProfileCompleted,
         provider,
         socialUserImg,
-        setIsUserUpdated
+        setIsUserUpdated,
+        type
       }}
     >
       {children}
